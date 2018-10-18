@@ -101,7 +101,7 @@
         },
         "AutoRecovery": {
             "Type": "String",
-            "Description": "Enable (Yes) or disable (No) automatic recovery feature for SAP HANA nodes.",
+            "Description": "Enable (Yes) or disable (No) automatic recovery feature for SAP HANA nodes. Disable it for Dedicated Host Deployments",
             "Default": "Yes",
             "AllowedValues": [
                 "Yes",
@@ -154,7 +154,8 @@
         "SLESBYOSRegCode": {
             "Type": "String",
             "Default": "",
-            "Description": "Registration code for SUSE BYOS (Applicable only if you use BYOS Option)."
+            "Description": "Registration code for SUSE BYOS (Applicable only if you use BYOS Option).",
+            "NoEcho": "true"
         },
         "InstallRDPInstance": {
             "Type": "String",
@@ -206,13 +207,16 @@
                 "x1e.xlarge",
                 "x1e.2xlarge",
                 "x1e.4xlarge",
-                "x1e.32xlarge"
+                "x1e.32xlarge",
+                "u-6tb1.metal",
+                "u-9tb1.metal",
+                "u-12tb1.metal"
             ]
         },
         "DedicatedHostId": {
-          "Type": "CommaDelimitedList",
-          "Description": "Existing dedicated host(s) where you want to launch your EC2 instance(s). Use comma to provide multiple hosts.",
-          "Default": ""
+            "Type": "CommaDelimitedList",
+            "Description": "Existing dedicated host(s) where you want to launch your EC2 instance(s). Use comma to provide multiple hosts. Mandatory for Amazon EC2 High Memory Instances.",
+            "Default": ""
         },
         "HostCount": {
             "Type": "Number",
@@ -287,6 +291,7 @@
                         "SLESBYOSRegCode",
                         "MyInstanceType",
                         "HostCount",
+                        "DedicatedHostId",
                         "AutoRecovery",
                         "KeyName",
                         "VolumeTypeHanaData",
@@ -321,7 +326,6 @@
                         "default": ""
                     },
                     "Parameters": [
-                        "DedicatedHostId",
                         "PlacementGroupName",
                         "InstallRDPInstance",
                         "RDPInstanceType",
@@ -708,16 +712,21 @@
             ]
         },
         "IfDedicatedHost": {
-          "Fn::Not" : [
-            {
-            "Fn::Equals": [
+            "Fn::Not": [
                 {
-                    "Fn::Select":["0",{"Ref": "DedicatedHostId"}]
-                },
-                ""
+                    "Fn::Equals": [
+                        {
+                            "Fn::Select": [
+                                "0",
+                                {
+                                    "Ref": "DedicatedHostId"
+                                }
+                            ]
+                        },
+                        ""
+                    ]
+                }
             ]
-          }
-        ]
         },
         "IfLogging": {
             "Fn::Equals": [
@@ -793,223 +802,223 @@
         "AWSAMIRegionMap": {
             "AMI": {
                 "RHEL73SAPHVM": "SAP-7.3_HVM-20180116-x86_64-1-Hourly2-GP2-b676039c-a4f8-4be7-9866-c804b1ade684-ami-d4ffddae.4",
-                "SLES11SP4HVM": "suse-sles-11-sp4-v20180706-hvm-ssd-x86_64",
+                "SLES11SP4HVM": "suse-sles-11-sp4-v20180816-hvm-ssd-x86_64",
                 "SLES12SP1HVM": "suse-sles-12-sp1-v20161021-hvm-ssd-x86_64",
                 "SLES12SP2HVM": "suse-sles-12-sp2-v20170620-hvm-ssd-x86_64",
-                "SLES12SP3HVM": "suse-sles-12-sp3-v20180706-hvm-ssd-x86_64",
+                "SLES12SP3HVM": "suse-sles-12-sp3-v20181004-hvm-ssd-x86_64",
                 "SLES12SP1SAPHVM": "suse-sles-sap-12-sp1-v20171121-hvm-ssd-x86_64-f0188081-b780-4ee4-aef6-cbcb063fd11e-ami-8bac24f1.4",
                 "SLES12SP2SAPHVM": "suse-sles-sap-12-sp2-v20180706-hvm-ssd-x86_64-e3458d64-5c36-4577-bd98-0ee19e3eaeec-ami-3ac5ea45.4",
-                "SLES12SP3SAPHVM": "suse-sles-sap-12-sp3-v20180706-hvm-ssd-x86_64-da7aa9c3-97db-4573-89a6-7fe7348d90b0-ami-11f7d86e.4",
+                "SLES12SP3SAPHVM": "suse-sles-sap-12-sp3-v20180814-hvm-ssd-x86_64-da7aa9c3-97db-4573-89a6-7fe7348d90b0-ami-0df5b06332b816a8e.4",
                 "SLES12SP1SAPBYOSHVM": "suse-sles-sap-12-sp1-byos-v20170123-hvm-ssd-x86_64",
-                "SLES12SP2SAPBYOSHVM": "suse-sles-sap-12-sp2-byos-v20180706-hvm-ssd-x86_64",
-                "SLES12SP3SAPBYOSHVM": "suse-sles-sap-12-sp3-byos-v20180706-hvm-ssd-x86_64",
-                "WS2012R2": "Windows_Server-2012-R2_RTM-English-64Bit-Base-2018.07.11"
+                "SLES12SP2SAPBYOSHVM": "suse-sles-sap-12-sp2-byos-v20180816-hvm-ssd-x86_64",
+                "SLES12SP3SAPBYOSHVM": "suse-sles-sap-12-sp3-byos-v20180814-hvm-ssd-x86_64",
+                "WS2012R2": "Windows_Server-2012-R2_RTM-English-64Bit-Base-2018.09.15"
             },
             "ap-northeast-1": {
                 "RHEL73SAPHVM": "ami-e5036283",
-                "SLES11SP4HVM": "ami-6e395f83",
+                "SLES11SP4HVM": "ami-0c6f393bb8d20159a",
                 "SLES12SP1HVM": "ami-d94fe9b8",
                 "SLES12SP1SAPBYOSHVM": "ami-63473c04",
                 "SLES12SP1SAPHVM": "ami-a6da67c0",
                 "SLES12SP2HVM": "ami-a07560c7",
-                "SLES12SP2SAPBYOSHVM": "ami-d1c1a63c",
+                "SLES12SP2SAPBYOSHVM": "ami-0fcd0e48bd60c9ee6",
                 "SLES12SP2SAPHVM": "ami-322e43df",
-                "SLES12SP3HVM": "ami-6bb7d086",
-                "SLES12SP3SAPBYOSHVM": "ami-9274127f",
-                "SLES12SP3SAPHVM": "ami-19dcbef4",
-                "WS2012R2": "ami-a73c5e4a"
+                "SLES12SP3HVM": "ami-050f5170e43607893",
+                "SLES12SP3SAPBYOSHVM": "ami-0b0ded1fd5d53c9e9",
+                "SLES12SP3SAPHVM": "ami-05e66d665f69082c4",
+                "WS2012R2": "ami-0f94c740726599c3a"
             },
             "ap-northeast-2": {
                 "RHEL73SAPHVM": "ami-e0e5468e",
-                "SLES11SP4HVM": "ami-1181357f",
+                "SLES11SP4HVM": "ami-00e7068674ce94853",
                 "SLES12SP1HVM": "ami-1ced3972",
                 "SLES12SP1SAPBYOSHVM": "ami-b5f928db",
                 "SLES12SP1SAPHVM": "ami-5f993e31",
                 "SLES12SP2HVM": "ami-86d00fe8",
-                "SLES12SP2SAPBYOSHVM": "ami-d59d29bb",
+                "SLES12SP2SAPBYOSHVM": "ami-07c176c4af92973f6",
                 "SLES12SP2SAPHVM": "ami-241fab4a",
-                "SLES12SP3HVM": "ami-9f9d29f1",
-                "SLES12SP3SAPBYOSHVM": "ami-bd8a3ed3",
-                "SLES12SP3SAPHVM": "ami-d91ca8b7",
-                "WS2012R2": "ami-28398d46"
+                "SLES12SP3HVM": "ami-00728f974fb4b3f2a",
+                "SLES12SP3SAPBYOSHVM": "ami-09a3d6b40137b0c62",
+                "SLES12SP3SAPHVM": "ami-071d0cc87c99d6fca",
+                "WS2012R2": "ami-0f033ac3427fcdad0"
             },
             "ap-south-1": {
                 "RHEL73SAPHVM": "ami-f383d59c",
-                "SLES11SP4HVM": "ami-66586e09",
+                "SLES11SP4HVM": "ami-0bdb8670f707feabd",
                 "SLES12SP1HVM": "ami-985226f7",
                 "SLES12SP1SAPBYOSHVM": "ami-93c9bffc",
                 "SLES12SP1SAPHVM": "ami-b3e6a9dc",
                 "SLES12SP2HVM": "ami-62e39c0d",
-                "SLES12SP2SAPBYOSHVM": "ami-a15167ce",
+                "SLES12SP2SAPBYOSHVM": "ami-04e3253865938cd82",
                 "SLES12SP2SAPHVM": "ami-c9d0e1a6",
-                "SLES12SP3HVM": "ami-216d5b4e",
-                "SLES12SP3SAPBYOSHVM": "ami-273c0a48",
-                "SLES12SP3SAPHVM": "ami-4bd4e524",
-                "WS2012R2": "ami-e013228f"
+                "SLES12SP3HVM": "ami-0c1453eb750c7a5ab",
+                "SLES12SP3SAPBYOSHVM": "ami-08f3e25abb82c7b6b",
+                "SLES12SP3SAPHVM": "ami-0786e9ea7350f5931",
+                "WS2012R2": "ami-0d5f824867e8aeaf6"
             },
             "ap-southeast-1": {
                 "RHEL73SAPHVM": "ami-92ef90ee",
-                "SLES11SP4HVM": "ami-ea5b2400",
+                "SLES11SP4HVM": "ami-021e49892145e1949",
                 "SLES12SP1HVM": "ami-163d9b75",
                 "SLES12SP1SAPBYOSHVM": "ami-ab0aa0c8",
                 "SLES12SP1SAPHVM": "ami-65a7f006",
                 "SLES12SP2HVM": "ami-f1078a92",
-                "SLES12SP2SAPBYOSHVM": "ami-296619c3",
+                "SLES12SP2SAPBYOSHVM": "ami-0ae95671afac01725",
                 "SLES12SP2SAPHVM": "ami-d558203f",
-                "SLES12SP3HVM": "ami-f77d021d",
-                "SLES12SP3SAPBYOSHVM": "ami-f998e713",
-                "SLES12SP3SAPHVM": "ami-aa106840",
-                "WS2012R2": "ami-43e49da9"
+                "SLES12SP3HVM": "ami-06190570cf455031a",
+                "SLES12SP3SAPBYOSHVM": "ami-059895770fc7c71d6",
+                "SLES12SP3SAPHVM": "ami-0a03524280ada8595",
+                "WS2012R2": "ami-0f42104b50a572747"
             },
             "ap-southeast-2": {
                 "RHEL73SAPHVM": "ami-f6d62994",
-                "SLES11SP4HVM": "ami-e8c8128a",
+                "SLES11SP4HVM": "ami-0c966540b7cd84b4b",
                 "SLES12SP1HVM": "ami-e32b1680",
                 "SLES12SP1SAPBYOSHVM": "ami-460d0a25",
                 "SLES12SP1SAPHVM": "ami-9abe54f8",
                 "SLES12SP2HVM": "ami-197a6a7a",
-                "SLES12SP2SAPBYOSHVM": "ami-7ed40e1c",
+                "SLES12SP2SAPBYOSHVM": "ami-0a46a8634f9cf4773",
                 "SLES12SP2SAPHVM": "ami-ad41e4cf",
-                "SLES12SP3HVM": "ami-bad00ad8",
-                "SLES12SP3SAPBYOSHVM": "ami-c9f228ab",
-                "SLES12SP3SAPHVM": "ami-af41e4cd",
-                "WS2012R2": "ami-e3862381"
+                "SLES12SP3HVM": "ami-0ccbc8eb74e84b8bd",
+                "SLES12SP3SAPBYOSHVM": "ami-0249d633f929faf81",
+                "SLES12SP3SAPHVM": "ami-0cb175ddfd285fd68",
+                "WS2012R2": "ami-06f2dbd8cdf99fd40"
             },
             "ca-central-1": {
                 "RHEL73SAPHVM": "ami-2a63e64e",
-                "SLES11SP4HVM": "ami-b60587d2",
+                "SLES11SP4HVM": "ami-0a89186e8d2b82307",
                 "SLES12SP1SAPBYOSHVM": "ami-2fd4694b",
                 "SLES12SP1SAPHVM": "ami-368a3152",
                 "SLES12SP2HVM": "ami-d5d56ab1",
-                "SLES12SP2SAPBYOSHVM": "ami-e4078580",
+                "SLES12SP2SAPBYOSHVM": "ami-0939c0572f1ad4cd7",
                 "SLES12SP2SAPHVM": "ami-23ca4747",
-                "SLES12SP3HVM": "ami-0b0a886f",
-                "SLES12SP3SAPBYOSHVM": "ami-890f8ded",
-                "SLES12SP3SAPHVM": "ami-3cc54858",
-                "WS2012R2": "ami-f334b697"
+                "SLES12SP3HVM": "ami-0f7c9a39e20a9adea",
+                "SLES12SP3SAPBYOSHVM": "ami-0b480fe4a1992dfcb",
+                "SLES12SP3SAPHVM": "ami-3d3db059",
+                "WS2012R2": "ami-0bc1f82c15f6cb011"
             },
             "eu-central-1": {
                 "RHEL73SAPHVM": "ami-d866f9b7",
-                "SLES11SP4HVM": "ami-3de5dfd6",
+                "SLES11SP4HVM": "ami-0f032693ef4319469",
                 "SLES12SP1HVM": "ami-59699036",
                 "SLES12SP1SAPBYOSHVM": "ami-4b6ba424",
                 "SLES12SP1SAPHVM": "ami-7efc7e11",
                 "SLES12SP2HVM": "ami-984ee9f7",
-                "SLES12SP2SAPBYOSHVM": "ami-ceecd625",
+                "SLES12SP2SAPBYOSHVM": "ami-0a4b6a1303d820d52",
                 "SLES12SP2SAPHVM": "ami-2a6463c1",
-                "SLES12SP3HVM": "ami-2cffc5c7",
-                "SLES12SP3SAPBYOSHVM": "ami-6da59f86",
-                "SLES12SP3SAPHVM": "ami-73646398",
-                "WS2012R2": "ami-f7ece81c"
+                "SLES12SP3HVM": "ami-0fa9bde3f3d40e5ae",
+                "SLES12SP3SAPBYOSHVM": "ami-035997e605600f24d",
+                "SLES12SP3SAPHVM": "ami-01517077c8ef929c7",
+                "WS2012R2": "ami-09f85c4c3e4a1ca3b"
             },
             "eu-west-1": {
                 "RHEL73SAPHVM": "ami-e365fd9a",
-                "SLES11SP4HVM": "ami-ef564105",
+                "SLES11SP4HVM": "ami-0a40ff0e3202c10e1",
                 "SLES12SP1HVM": "ami-b197d9c2",
                 "SLES12SP1SAPBYOSHVM": "ami-81025de7",
                 "SLES12SP1SAPHVM": "ami-03ef587a",
                 "SLES12SP2HVM": "ami-f5776f93",
-                "SLES12SP2SAPBYOSHVM": "ami-8d061067",
+                "SLES12SP2SAPBYOSHVM": "ami-048e8991161e07ba8",
                 "SLES12SP2SAPHVM": "ami-fa0c1e10",
-                "SLES12SP3HVM": "ami-da697f30",
-                "SLES12SP3SAPBYOSHVM": "ami-a07b6d4a",
-                "SLES12SP3SAPHVM": "ami-a3332149",
-                "WS2012R2": "ami-5ef8ebb4"
+                "SLES12SP3HVM": "ami-06bc7889ee68f279e",
+                "SLES12SP3SAPBYOSHVM": "ami-0dc906e72df071f00",
+                "SLES12SP3SAPHVM": "ami-0dd261bbc18ff512a",
+                "WS2012R2": "ami-019526e560b1c9df4"
             },
             "eu-west-2": {
                 "RHEL73SAPHVM": "ami-03fee567",
-                "SLES11SP4HVM": "ami-42c72f25",
+                "SLES11SP4HVM": "ami-06a87787f9466fa7b",
                 "SLES12SP1SAPBYOSHVM": "ami-b2a1abd6",
                 "SLES12SP1SAPHVM": "ami-ebc3dc8f",
                 "SLES12SP2HVM": "ami-d97066bd",
-                "SLES12SP2SAPBYOSHVM": "ami-aa23cbcd",
+                "SLES12SP2SAPBYOSHVM": "ami-02ae5e7d40383aa35",
                 "SLES12SP2SAPHVM": "ami-2992794e",
-                "SLES12SP3HVM": "ami-dd23cbba",
-                "SLES12SP3SAPBYOSHVM": "ami-f40ae293",
-                "SLES12SP3SAPHVM": "ami-11937876",
-                "WS2012R2": "ami-a3b259c4"
+                "SLES12SP3HVM": "ami-0eb4bd78fba2f32e4",
+                "SLES12SP3SAPBYOSHVM": "ami-0511a35ec641e8d42",
+                "SLES12SP3SAPHVM": "ami-007f4f140fb79e469",
+                "WS2012R2": "ami-068ee8cde1f60ca7f"
             },
             "eu-west-3": {
                 "RHEL73SAPHVM": "ami-7ae85e07",
-                "SLES11SP4HVM": "ami-bdcd7dc0",
+                "SLES11SP4HVM": "ami-036671c4b09355867",
                 "SLES12SP1SAPBYOSHVM": "ami-cf992eb2",
                 "SLES12SP1SAPHVM": "ami-41893e3c",
-                "SLES12SP2SAPBYOSHVM": "ami-8dc979f0",
+                "SLES12SP2SAPBYOSHVM": "ami-0a91a227920c1c660",
                 "SLES12SP2SAPHVM": "ami-bfbf0fc2",
-                "SLES12SP3HVM": "ami-60cc7c1d",
-                "SLES12SP3SAPBYOSHVM": "ami-b8cb7bc5",
-                "SLES12SP3SAPHVM": "ami-69bd0d14",
-                "WS2012R2": "ami-e0b1019d"
+                "SLES12SP3HVM": "ami-07b20332d54ed21e8",
+                "SLES12SP3SAPBYOSHVM": "ami-02aade11c6173a417",
+                "SLES12SP3SAPHVM": "ami-0f7cb07e8a64837da",
+                "WS2012R2": "ami-014aa0eab0ec618d6"
             },
             "sa-east-1": {
                 "RHEL73SAPHVM": "ami-0b8ac767",
-                "SLES11SP4HVM": "ami-2990b445",
+                "SLES11SP4HVM": "ami-00134f83806a20f4a",
                 "SLES12SP1HVM": "ami-ce3aa7a2",
                 "SLES12SP1SAPBYOSHVM": "ami-eb543187",
                 "SLES12SP1SAPHVM": "ami-798cc915",
                 "SLES12SP2HVM": "ami-52a4cf3e",
-                "SLES12SP2SAPBYOSHVM": "ami-4197b32d",
+                "SLES12SP2SAPBYOSHVM": "ami-0f3b06f3008cb71a3",
                 "SLES12SP2SAPHVM": "ami-5cd5f230",
-                "SLES12SP3HVM": "ami-9c8fabf0",
-                "SLES12SP3SAPBYOSHVM": "ami-e7694e8b",
-                "SLES12SP3SAPHVM": "ami-07a6816b",
-                "WS2012R2": "ami-fac4e396"
+                "SLES12SP3HVM": "ami-0188b2a9dc0ae5f44",
+                "SLES12SP3SAPBYOSHVM": "ami-04dacddc0bed7ea0c",
+                "SLES12SP3SAPHVM": "ami-0bce441632c6a4f49",
+                "WS2012R2": "ami-04fddd42220f1829a"
             },
             "us-east-1": {
                 "RHEL73SAPHVM": "ami-39f0de43",
-                "SLES11SP4HVM": "ami-cfb49bb0",
+                "SLES11SP4HVM": "ami-05b47745292b62b8e",
                 "SLES12SP1HVM": "ami-1eeab909",
                 "SLES12SP1SAPBYOSHVM": "ami-7dd2256b",
                 "SLES12SP1SAPHVM": "ami-f20f8788",
                 "SLES12SP2HVM": "ami-8fac8399",
-                "SLES12SP2SAPBYOSHVM": "ami-91d7f8ee",
+                "SLES12SP2SAPBYOSHVM": "ami-0badcc32d038e76b6",
                 "SLES12SP2SAPHVM": "ami-1c477763",
-                "SLES12SP3HVM": "ami-3c062943",
-                "SLES12SP3SAPBYOSHVM": "ami-b1daf5ce",
-                "SLES12SP3SAPHVM": "ami-2a497955",
-                "WS2012R2": "ami-60093e1f"
+                "SLES12SP3HVM": "ami-03adb8813ffd80f0b",
+                "SLES12SP3SAPBYOSHVM": "ami-0a716f006d0e61fda",
+                "SLES12SP3SAPHVM": "ami-0670bf4d2d9a6151b",
+                "WS2012R2": "ami-04b06bdb58cae787d"
             },
             "us-east-2": {
                 "RHEL73SAPHVM": "ami-bbe4cede",
-                "SLES11SP4HVM": "ami-a49ea6c1",
+                "SLES11SP4HVM": "ami-0d984fc673fefcb8c",
                 "SLES12SP1HVM": "ami-85075de0",
                 "SLES12SP1SAPBYOSHVM": "ami-ac2401c9",
                 "SLES12SP1SAPHVM": "ami-3df7d958",
                 "SLES12SP2HVM": "ami-f990b69c",
-                "SLES12SP2SAPBYOSHVM": "ami-349ca451",
+                "SLES12SP2SAPBYOSHVM": "ami-044b76b9b1d1910cb",
                 "SLES12SP2SAPHVM": "ami-e10c3784",
-                "SLES12SP3HVM": "ami-cd98a0a8",
-                "SLES12SP3SAPBYOSHVM": "ami-bf8db5da",
-                "SLES12SP3SAPHVM": "ami-8d0d36e8",
-                "WS2012R2": "ami-ca2318af"
+                "SLES12SP3HVM": "ami-0479b39f2d07530fb",
+                "SLES12SP3SAPBYOSHVM": "ami-0ce850e2837a005b7",
+                "SLES12SP3SAPHVM": "ami-046343b8758067d02",
+                "WS2012R2": "ami-08c59800a21429561"
             },
             "us-west-1": {
                 "RHEL73SAPHVM": "ami-0be4e66b",
-                "SLES11SP4HVM": "ami-282fcf4b",
+                "SLES11SP4HVM": "ami-07db9616cb48eef6e",
                 "SLES12SP1HVM": "ami-a12962c1",
                 "SLES12SP1SAPBYOSHVM": "ami-4a9dcf2a",
                 "SLES12SP1SAPHVM": "ami-5ce8d03c",
                 "SLES12SP2HVM": "ami-32c8e552",
-                "SLES12SP2SAPBYOSHVM": "ami-c229c9a1",
+                "SLES12SP2SAPBYOSHVM": "ami-0e0cae02fda577d62",
                 "SLES12SP2SAPHVM": "ami-5f64873c",
-                "SLES12SP3HVM": "ami-4829c92b",
-                "SLES12SP3SAPBYOSHVM": "ami-9f08e8fc",
-                "SLES12SP3SAPHVM": "ami-f3658690",
-                "WS2012R2": "ami-132ac970"
+                "SLES12SP3HVM": "ami-05561250b8346a707",
+                "SLES12SP3SAPBYOSHVM": "ami-07e600a32a750ad05",
+                "SLES12SP3SAPHVM": "ami-08c9d05a34bc4f225",
+                "WS2012R2": "ami-08f6003bf4d50fe60"
             },
             "us-west-2": {
                 "RHEL73SAPHVM": "ami-edfa4895",
-                "SLES11SP4HVM": "ami-a25600da",
+                "SLES11SP4HVM": "ami-09a652af9ed1e0dad",
                 "SLES12SP1HVM": "ami-7fa2061f",
                 "SLES12SP1SAPBYOSHVM": "ami-68922c08",
                 "SLES12SP1SAPHVM": "ami-94fb26ec",
                 "SLES12SP2HVM": "ami-da786da3",
-                "SLES12SP2SAPBYOSHVM": "ami-040c5a7c",
+                "SLES12SP2SAPBYOSHVM": "ami-0daf2aa65f54dfc6b",
                 "SLES12SP2SAPHVM": "ami-7bb5e603",
-                "SLES12SP3HVM": "ami-933167eb",
-                "SLES12SP3SAPBYOSHVM": "ami-2c693f54",
-                "SLES12SP3SAPHVM": "ami-94b0e3ec",
-                "WS2012R2": "ami-490b5831"
+                "SLES12SP3HVM": "ami-015ee9a0398544b09",
+                "SLES12SP3SAPBYOSHVM": "ami-0da29a8e3dc64a63f",
+                "SLES12SP3SAPHVM": "ami-b73516cf",
+                "WS2012R2": "ami-0d1a1bbc1331e97f7"
             }
         }
     },
@@ -1255,27 +1264,6 @@
             "Type": "AWS::EC2::NetworkInterface",
             "Properties": {
                 "Description": "Network Interface for HANA Master",
-                "SubnetId": {
-                    "Ref": "HANASubnet"
-                },
-                "GroupSet": [
-                    {
-                        "Ref": "HANASecurityGroup"
-                    }
-                ],
-                "SourceDestCheck": "true",
-                "Tags": [
-                    {
-                        "Key": "Network",
-                        "Value": "Private"
-                    }
-                ]
-            }
-        },
-        "HANAMasterCloneInterface": {
-            "Type": "AWS::EC2::NetworkInterface",
-            "Properties": {
-                "Description": "Network Interface for HANA Master Clone (PreCheck)",
                 "SubnetId": {
                     "Ref": "HANASubnet"
                 },
@@ -2335,13 +2323,22 @@
                 "HostRole": "Master"
             },
             "Properties": {
-              "HostId": {
-                "Fn::If" : [
-                  "IfDedicatedHost",
-                    {"Fn::Select": ["0",{"Ref": "DedicatedHostId"}]},
-                    {"Ref": "AWS::NoValue"}
-                ]
-              },
+                "HostId": {
+                    "Fn::If": [
+                        "IfDedicatedHost",
+                        {
+                            "Fn::Select": [
+                                "0",
+                                {
+                                    "Ref": "DedicatedHostId"
+                                }
+                            ]
+                        },
+                        {
+                            "Ref": "AWS::NoValue"
+                        }
+                    ]
+                },
                 "NetworkInterfaces": [
                     {
                         "NetworkInterfaceId": {
@@ -2607,6 +2604,8 @@
                                 "\n",
                                 "sh /root/install/writeconfig.sh USR_SAP_VOL=gp2",
                                 "\n",
+                                "sh /root/install/writeconfig.sh HANA_MEDIA_VOL=gp2",
+                                "\n",
                                 "echo ",
                                 {
                                     "Fn::Join": [
@@ -2743,13 +2742,22 @@
                 "HostRole": "Worker"
             },
             "Properties": {
-              "HostId": {
-                "Fn::If" : [
-                  "IfDedicatedHost",
-                    {"Fn::Select": ["1",{"Ref": "DedicatedHostId"}]},
-                    {"Ref": "AWS::NoValue"}
-                ]
-              },
+                "HostId": {
+                    "Fn::If": [
+                        "IfDedicatedHost",
+                        {
+                            "Fn::Select": [
+                                "1",
+                                {
+                                    "Ref": "DedicatedHostId"
+                                }
+                            ]
+                        },
+                        {
+                            "Ref": "AWS::NoValue"
+                        }
+                    ]
+                },
                 "NetworkInterfaces": [
                     {
                         "NetworkInterfaceId": {
@@ -3113,13 +3121,22 @@
                 "HostRole": "Worker"
             },
             "Properties": {
-              "HostId": {
-                "Fn::If" : [
-                  "IfDedicatedHost",
-                    {"Fn::Select": ["2",{"Ref": "DedicatedHostId"}]},
-                    {"Ref": "AWS::NoValue"}
-                ]
-              },
+                "HostId": {
+                    "Fn::If": [
+                        "IfDedicatedHost",
+                        {
+                            "Fn::Select": [
+                                "2",
+                                {
+                                    "Ref": "DedicatedHostId"
+                                }
+                            ]
+                        },
+                        {
+                            "Ref": "AWS::NoValue"
+                        }
+                    ]
+                },
                 "NetworkInterfaces": [
                     {
                         "NetworkInterfaceId": {
@@ -3483,13 +3500,22 @@
                 "HostRole": "Worker"
             },
             "Properties": {
-              "HostId": {
-                "Fn::If" : [
-                  "IfDedicatedHost",
-                    {"Fn::Select": ["3",{"Ref": "DedicatedHostId"}]},
-                    {"Ref": "AWS::NoValue"}
-                ]
-              },
+                "HostId": {
+                    "Fn::If": [
+                        "IfDedicatedHost",
+                        {
+                            "Fn::Select": [
+                                "3",
+                                {
+                                    "Ref": "DedicatedHostId"
+                                }
+                            ]
+                        },
+                        {
+                            "Ref": "AWS::NoValue"
+                        }
+                    ]
+                },
                 "NetworkInterfaces": [
                     {
                         "NetworkInterfaceId": {
@@ -3853,13 +3879,22 @@
                 "HostRole": "Worker"
             },
             "Properties": {
-              "HostId": {
-                "Fn::If" : [
-                  "IfDedicatedHost",
-                    {"Fn::Select": ["4",{"Ref": "DedicatedHostId"}]},
-                    {"Ref": "AWS::NoValue"}
-                ]
-              },
+                "HostId": {
+                    "Fn::If": [
+                        "IfDedicatedHost",
+                        {
+                            "Fn::Select": [
+                                "4",
+                                {
+                                    "Ref": "DedicatedHostId"
+                                }
+                            ]
+                        },
+                        {
+                            "Ref": "AWS::NoValue"
+                        }
+                    ]
+                },
                 "NetworkInterfaces": [
                     {
                         "NetworkInterfaceId": {
@@ -4223,13 +4258,22 @@
                 "HostRole": "Worker"
             },
             "Properties": {
-              "HostId": {
-                "Fn::If" : [
-                  "IfDedicatedHost",
-                    {"Fn::Select": ["5",{"Ref": "DedicatedHostId"}]},
-                    {"Ref": "AWS::NoValue"}
-                ]
-              },
+                "HostId": {
+                    "Fn::If": [
+                        "IfDedicatedHost",
+                        {
+                            "Fn::Select": [
+                                "5",
+                                {
+                                    "Ref": "DedicatedHostId"
+                                }
+                            ]
+                        },
+                        {
+                            "Ref": "AWS::NoValue"
+                        }
+                    ]
+                },
                 "NetworkInterfaces": [
                     {
                         "NetworkInterfaceId": {
